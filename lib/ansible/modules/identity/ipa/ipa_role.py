@@ -65,6 +65,7 @@ options:
     - If option is omitted privileges will not be checked or changed.
     - If option is passed all assigned privileges that are not passed will be removed.
     required: false
+    default: None
   service:
     description:
     - List of service names to assign.
