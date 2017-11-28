@@ -392,6 +392,9 @@ def create_instances(module, gce, instance_names, number):
     zone = module.params.get('zone')
     ip_forward = module.params.get('ip_forward')
     external_ip = module.params.get('external_ip')
+
+    internal_ip = module.params.get('internal_ip')
+
     disk_auto_delete = module.params.get('disk_auto_delete')
     preemptible = module.params.get('preemptible')
     disk_size = module.params.get('disk_size')
@@ -413,6 +416,8 @@ def create_instances(module, gce, instance_names, number):
             module.fail_json(msg='Unexpected error attempting to get a static ip %s, error: %s' % (external_ip, e.value))
     else:
         instance_external_ip = external_ip
+
+    instance_internal_ip =  GCEAddress(id='unknown', name='unknown', address=internal_ip, region='unknown', driver=gce)
 
     new_instances = []
     changed = False
@@ -480,6 +485,7 @@ def create_instances(module, gce, instance_names, number):
         ex_network=network, ex_tags=tags, ex_metadata=metadata,
         ex_can_ip_forward=ip_forward,
         external_ip=instance_external_ip, ex_disk_auto_delete=disk_auto_delete,
+        internal_ip=internal_ip,
         ex_service_accounts=ex_sa_perms
     )
     if preemptible is not None:
@@ -642,6 +648,7 @@ def main():
             project_id = dict(),
             ip_forward = dict(type='bool', default=False),
             external_ip=dict(default='ephemeral'),
+            internal_ip=dict(),
             disk_auto_delete = dict(type='bool', default=True),
             disk_size = dict(type='int', default=10),
             preemptible = dict(type='bool', default=None),
