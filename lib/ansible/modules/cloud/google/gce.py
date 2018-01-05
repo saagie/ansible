@@ -401,6 +401,8 @@ def create_instances(module, gce, instance_names, number):
     service_account_permissions = module.params.get('service_account_permissions')
     service_account_email = module.params.get('service_account_email')
 
+    network_interfaces = module.params.get('network_interfaces')
+
     if external_ip == "none":
         instance_external_ip = None
     elif external_ip != "ephemeral":
@@ -418,6 +420,8 @@ def create_instances(module, gce, instance_names, number):
         instance_external_ip = external_ip
 
     instance_internal_ip =  GCEAddress(id='unknown', name='unknown', address=internal_ip, region='unknown', driver=gce)
+
+    lc_interfaces = network_interfaces
 
     new_instances = []
     changed = False
@@ -486,7 +490,8 @@ def create_instances(module, gce, instance_names, number):
         ex_can_ip_forward=ip_forward,
         external_ip=instance_external_ip, ex_disk_auto_delete=disk_auto_delete,
         internal_ip=internal_ip,
-        ex_service_accounts=ex_sa_perms
+        ex_nic_gce_struct=lc_interfaces,
+        ex_service_accounts=ex_sa_perms,
     )
     if preemptible is not None:
         gce_args['ex_preemptible'] = preemptible
@@ -649,6 +654,7 @@ def main():
             ip_forward = dict(type='bool', default=False),
             external_ip=dict(default='ephemeral'),
             internal_ip=dict(),
+            network_interfaces=dict(type='list'),
             disk_auto_delete = dict(type='bool', default=True),
             disk_size = dict(type='int', default=10),
             preemptible = dict(type='bool', default=None),
